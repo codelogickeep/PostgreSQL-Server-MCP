@@ -69,10 +69,10 @@ async def query_sql(sql: str) -> str:
 @mcp.tool()
 async def execute_sql(sql: str) -> str:
     """
-    执行修改类 SQL 语句 (INSERT, UPDATE, DELETE, CREATE, DROP 等)。
+    执行数据修改 SQL 语句 (DML)，如 INSERT, UPDATE, DELETE。
     
     Args:
-        sql: 要执行的 SQL 语句。
+        sql: 要执行的 DML 语句。
     """
     conn = await get_connection()
     try:
@@ -83,6 +83,25 @@ async def execute_sql(sql: str) -> str:
                 return f"执行成功，影响行数: {cur.rowcount}"
     except Exception as e:
         return f"执行出错: {str(e)}"
+    finally:
+        await conn.close()
+
+@mcp.tool()
+async def run_ddl(sql: str) -> str:
+    """
+    执行数据库结构变更 SQL 语句 (DDL)，如 CREATE, DROP, ALTER, TRUNCATE。
+    
+    Args:
+        sql: 要执行的 DDL 语句。
+    """
+    conn = await get_connection()
+    try:
+        async with conn:
+            async with conn.cursor(row_factory=dict_row) as cur:
+                await cur.execute(sql)
+                return "DDL 执行成功。"
+    except Exception as e:
+        return f"DDL 执行出错: {str(e)}"
     finally:
         await conn.close()
 

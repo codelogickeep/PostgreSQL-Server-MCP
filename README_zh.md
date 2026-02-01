@@ -10,9 +10,14 @@
     -   **返回**: JSON 格式的查询结果。
 
 -   **execute_sql**
-    -   **功能**: 执行修改类 SQL 语句 (INSERT, UPDATE, DELETE, CREATE, DROP 等)。
-    -   **参数**: `sql` (string) - 要执行的 SQL 语句。
+    -   **功能**: 执行数据修改 SQL 语句 (DML)，如 INSERT, UPDATE, DELETE。
+    -   **参数**: `sql` (string) - 要执行的 DML 语句。
     -   **返回**: 执行状态消息（如影响行数）。
+
+-   **run_ddl**
+    -   **功能**: 执行数据库结构变更 SQL 语句 (DDL)，如 CREATE, DROP, ALTER, TRUNCATE。
+    -   **参数**: `sql` (string) - 要执行的 DDL 语句。
+    -   **返回**: 执行状态消息。
 
 -   **list_tables**
     -   **功能**: 列出数据库中的表。

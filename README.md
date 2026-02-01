@@ -12,9 +12,14 @@ A lightweight PostgreSQL Model Context Protocol (MCP) server, designed to provid
     -   **Returns**: Query results in JSON format.
 
 -   **execute_sql**
-    -   **Description**: Execute modification SQL statements (INSERT, UPDATE, DELETE, CREATE, DROP, etc.).
-    -   **Arguments**: `sql` (string) - The SQL statement to execute.
+    -   **Description**: Execute modification SQL statements (DML) such as INSERT, UPDATE, DELETE.
+    -   **Arguments**: `sql` (string) - The DML statement to execute.
     -   **Returns**: Execution status message (e.g., number of rows affected).
+
+-   **run_ddl**
+    -   **Description**: Execute database structure definition statements (DDL) such as CREATE, DROP, ALTER, TRUNCATE.
+    -   **Arguments**: `sql` (string) - The DDL statement to execute.
+    -   **Returns**: Execution status message.
 
 -   **list_tables**
     -   **Description**: List tables in the database.
