@@ -28,6 +28,10 @@ async def get_connection() -> psycopg.AsyncConnection:
     """
     conn_info = os.environ.get("DATABASE_URL", "")
     
+    # 设置默认连接超时，避免长时间挂起 (如果未设置)
+    if "PGCONNECT_TIMEOUT" not in os.environ:
+        os.environ["PGCONNECT_TIMEOUT"] = "10"
+
     try:
         # psycopg.AsyncConnection.connect 支持连接串或空参数（自动读取 libpq 环境变量）
         conn = await psycopg.AsyncConnection.connect(conn_info)
