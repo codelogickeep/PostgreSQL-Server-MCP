@@ -42,7 +42,34 @@ async def get_connection() -> psycopg.AsyncConnection:
 @mcp.tool()
 async def query_sql(sql: str) -> str:
     """
-    执行 SQL 语句。支持数据查询(SELECT)、数据操作(INSERT/UPDATE/DELETE)以及结构变更(DDL)。
+    执行只读 SQL 查询 (SELECT)。
+    
+    Args:
+        sql: 要执行的 SELECT 查询语句。
+    """
+    if not sql.strip().upper().startswith("SELECT"):
+        return "错误: query_sql 仅支持 SELECT 查询。如需执行修改操作，请使用 execute_sql 工具。"
+
+    conn = await get_connection()
+    try:
+        async with conn:
+            # 使用只读事务模式 (虽不能完全防止所有副作用，但增加了安全性)
+            await conn.set_read_only(True)
+            async with conn.cursor(row_factory=dict_row) as cur:
+                await cur.execute(sql)
+                if cur.description:
+                    rows = await cur.fetchall()
+                    return json.dumps([dict(row) for row in rows], default=str, ensure_ascii=False)
+                return "查询执行完成，但无结果返回。"
+    except Exception as e:
+        return f"查询出错: {str(e)}"
+    finally:
+        await conn.close()
+
+@mcp.tool()
+async def execute_sql(sql: str) -> str:
+    """
+    执行修改类 SQL 语句 (INSERT, UPDATE, DELETE, CREATE, DROP 等)。
     
     Args:
         sql: 要执行的 SQL 语句。
@@ -52,14 +79,7 @@ async def query_sql(sql: str) -> str:
         async with conn:
             async with conn.cursor(row_factory=dict_row) as cur:
                 await cur.execute(sql)
-                
-                # 如果是 SELECT 等返回结果的查询
-                if cur.description:
-                    rows = await cur.fetchall()
-                    # 将结果转换为 JSON 格式字符串返回，处理日期等特殊类型
-                    return json.dumps([dict(row) for row in rows], default=str, ensure_ascii=False)
-                
-                # 如果是 INSERT/UPDATE/DELETE 等
+                # 对于修改类操作，返回影响行数
                 return f"执行成功，影响行数: {cur.rowcount}"
     except Exception as e:
         return f"执行出错: {str(e)}"
